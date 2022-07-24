@@ -96,17 +96,17 @@ gold_std_df['wmd_dist_score'] = wmd_dist_score
 
 #%% Test save
 
-with open("saved tests/bert_gold_std_df.p", "wb") as pickle_file:
-    pickle.dump(gold_std_df, pickle_file)  
+# with open("saved tests/bert_gold_std_df.p", "wb") as pickle_file:
+#     pickle.dump(gold_std_df, pickle_file)  
     
-#gold_std_df.to_csv("saved tests/bert_gold_std_df.csv") 
+gold_std_df.to_csv("saved tests/bert_gold_std_df.csv") 
     
 #%% Open test
 
-with open("saved tests/bert_gold_std_df.p", "rb") as pickle_file:
-    gold_std_df = pickle.load(pickle_file)   
+# with open("saved tests/bert_gold_std_df.p", "rb") as pickle_file:
+#     gold_std_df = pickle.load(pickle_file)   
     
-#gold_std_df = pd.read_csv("saved tests/bert_gold_std_df.csv")
+gold_std_df = pd.read_csv("saved tests/bert_gold_std_df.csv")
 
 
 

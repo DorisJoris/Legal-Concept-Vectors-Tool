@@ -5,7 +5,7 @@ import pickle
 
 from pympler import asizeof
 
-import database_bert as database
+import database
 
     
 #%% App
