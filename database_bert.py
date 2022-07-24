@@ -4,7 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 
-
+from progress.bar import Bar
 
 from transformers import AutoTokenizer, AutoModelForPreTraining
 
@@ -41,6 +41,15 @@ class lc_database:
     # Helper functions
     def concept_count(self):
         return len(self.legal_concepts)
+    
+    def number_of_doc(self):
+        documents = list()
+        for lc in self.legal_concepts:
+            if self.legal_concepts[lc]['parent'] == 'document':
+                documents.append(self.legal_concepts[lc]['name'])
+        
+        print(f'There are {len(documents)} in the database:')
+        return documents
     
     def random_lc(self):
         key = random.choice(list(self.legal_concepts.keys()))
@@ -104,16 +113,16 @@ class lc_database:
                 
                 self.external_ref.remove(ex_ref)
     
-    # def concept_bow_vector_init(self):
-    #     self.legal_concepts = lc_vc.concept_vector_init(self.legal_concepts, 
-    #                                                         self.hierachical_label_list)
+    def concept_bow_vector_init(self):
+        self.legal_concepts = lc_vc.concept_vector_init(self.legal_concepts, 
+                                                            self.hierachical_label_list)
     
     # Calculate the concept vectors and bows
-    def calculate_concept_vector(self, aver_dist_threshold = 30):
+    def calculate_concept_vector(self, aver_dist_threshold = 0.1):
         self.legal_concepts = lc_vc.concept_vector_calculator(self.legal_concepts, 
                                                                 aver_dist_threshold)
         
-    def calculate_concept_bow(self, min_tf_threshold = 30):
+    def calculate_concept_bow(self, min_tf_threshold = 1):
         
         self.legal_concepts = lc_vc.concept_bow_calculator(self.legal_concepts,
                                                            min_tf_threshold)
@@ -127,6 +136,7 @@ class lc_database:
         
         self.concept_vector_df = pd.DataFrame()
         
+        bar_df = Bar('Creating concept vector dataframes', max=len(self.legal_concepts.keys()))   
         for key in self.legal_concepts.keys():
             if type(self.legal_concepts[key]['parent']) != list:
                 level = 0
@@ -142,7 +152,9 @@ class lc_database:
             key_cv_df['parent'] = '_'.join([str(item) for item in parents])
             
             self.concept_vector_df = self.concept_vector_df.append(key_cv_df)
-
+            bar_df.next()
+        
+        bar_df.finish()
     
     
         

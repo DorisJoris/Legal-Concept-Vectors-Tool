@@ -13,59 +13,108 @@ import random
 from progress.bar import Bar
 from progress.spinner import Spinner
 
+# #%% Concept_vector initializer (only based on the children)
+# def concept_vector_init(legal_concepts, hierachical_label_list): #The heirachical_label_list should be sorted lowest to highest hierachy.
+#     #candidat_keys = list(legal_concepts.keys())
+
+#     bar_cvi = Bar('Processing concept vector init', max=len(hierachical_label_list))     
+
+#     for label in hierachical_label_list:
+        
+#         for legal_concept_key in legal_concepts.keys():
+#             if label in legal_concepts[legal_concept_key]['labels']:
+#                 parent_concept_bow = dict()
+#                 sum_of_child_vec = np.array([0]*768, dtype='float32')
+#                 n_of_child = 0
+                
+                
+#                 for neighbour in legal_concepts[legal_concept_key]['neighbours']:
+#                     if neighbour['type'] == 'child':
+#                         child_id = neighbour['neighbour']
+                        
+#                         sum_of_child_vec += legal_concepts[child_id]['concept_vector']
+                        
+#                         child_bow = legal_concepts[child_id]['concept_bow']
+            
+#                         n_of_child += 1
+                        
+#                         legal_concepts[legal_concept_key]['raw_text'] += '\n' + legal_concepts[child_id]['raw_text']
+                        
+#                         for word in child_bow.keys():
+                                
+#                             if word in parent_concept_bow.keys():
+#                                 parent_concept_bow[word][0] += child_bow[word][0]
+#                                 parent_concept_bow[word][1] += child_bow[word][1]
+#                                 parent_concept_bow[word][3] += child_bow[word][3]
+#                             else:
+#                                 parent_concept_bow[word] = copy.copy(child_bow[word])
+
+#                 if n_of_child > 0:        
+                    
+#                     legal_concepts[legal_concept_key]['concept_bow'] = parent_concept_bow
+#                     legal_concepts[legal_concept_key]['concept_vector'] = sum_of_child_vec/n_of_child
+#                 #candidat_keys.remove(legal_concept_key)
+                
+#         bar_cvi.next()
+                
+#     bar_cvi.finish()          
+#     return legal_concepts
+
 #%% Concept_vector initializer (only based on the children)
 def concept_vector_init(legal_concepts, hierachical_label_list): #The heirachical_label_list should be sorted lowest to highest hierachy.
-    #candidat_keys = list(legal_concepts.keys())
+    candidat_keys = sorted(list(legal_concepts.keys()), key=len, reverse= True)
 
-    bar_cvi = Bar('Processing concept vector init', max=len(hierachical_label_list))     
+    bar_cvi = Bar('Processing concept vector init', max=len(candidat_keys))     
 
-    for label in hierachical_label_list:
+
+    for legal_concept_key in candidat_keys:
+        if 'sentence' in legal_concepts[legal_concept_key]['labels']:
+            bar_cvi.next()
+            continue
+
         
-        for legal_concept_key in legal_concepts.keys():
-            if label in legal_concepts[legal_concept_key]['labels']:
-                parent_concept_bow = dict()
-                sum_of_child_vec = np.array([0]*768, dtype='float32')
-                n_of_child = 0
-                
-                
-                for neighbour in legal_concepts[legal_concept_key]['neighbours']:
-                    if neighbour['type'] == 'child':
-                        child_id = neighbour['neighbour']
-                        
-                        sum_of_child_vec += legal_concepts[child_id]['concept_vector']
-                        
-                        child_bow = legal_concepts[child_id]['concept_bow']
+        else:
+            parent_concept_bow = dict()
+            sum_of_child_vec = np.array([0]*768, dtype='float32')
+            n_of_child = 0
             
-                        n_of_child += 1
-                        
-                        legal_concepts[legal_concept_key]['raw_text'] += '\n' + legal_concepts[child_id]['raw_text']
-                        
-                        for word in child_bow.keys():
-                                
-                            if word in parent_concept_bow.keys():
-                                parent_concept_bow[word][0] += child_bow[word][0]
-                                parent_concept_bow[word][1] += child_bow[word][1]
-                                parent_concept_bow[word][3] += child_bow[word][3]
-                            else:
-                                parent_concept_bow[word] = copy.copy(child_bow[word])
-
-                if n_of_child > 0:        
+            
+            for neighbour in legal_concepts[legal_concept_key]['neighbours']:
+                if neighbour['type'] == 'child':
+                    child_id = neighbour['neighbour']
                     
-                    legal_concepts[legal_concept_key]['concept_bow'] = parent_concept_bow
-                    legal_concepts[legal_concept_key]['concept_vector'] = sum_of_child_vec/n_of_child
-                #candidat_keys.remove(legal_concept_key)
+                    sum_of_child_vec += legal_concepts[child_id]['concept_vector']
+                    
+                    child_bow = legal_concepts[child_id]['concept_bow']
+        
+                    n_of_child += 1
+                    
+                    legal_concepts[legal_concept_key]['raw_text'] += '\n' + legal_concepts[child_id]['raw_text']
+                    
+                    for word in child_bow.keys():
+                            
+                        if word in parent_concept_bow.keys():
+                            parent_concept_bow[word][0] += child_bow[word][0]
+                            parent_concept_bow[word][1] += child_bow[word][1]
+                            parent_concept_bow[word][3] += child_bow[word][3]
+                        else:
+                            parent_concept_bow[word] = copy.copy(child_bow[word])
+
+            if n_of_child > 0:        
                 
-        bar_cvi.next()
+                legal_concepts[legal_concept_key]['concept_bow'] = parent_concept_bow
+                legal_concepts[legal_concept_key]['concept_vector'] = sum_of_child_vec/n_of_child
+                
+            bar_cvi.next()
                 
     bar_cvi.finish()          
     return legal_concepts
-
   
 
 #%% Concept_vector calculator (iterative calculation the mean of all neighbours for every concept)    
     
 def concept_vector_calculator(legal_concepts, aver_dist_threshold):
-    spinner = Spinner('Loading ')
+    spinner = Spinner('Calculation concept vectors ')
     candidat_keys = list(legal_concepts.keys())
     candidat_change_count = {}
     
@@ -141,7 +190,7 @@ def concept_vector_calculator(legal_concepts, aver_dist_threshold):
 
 #%% concept bow calculator
 def concept_bow_calculator(legal_concepts, min_tf_threshold):
-    spinner = Spinner('Loading ')
+    spinner = Spinner('Calculating concept BOWs ')
     candidat_keys = list(legal_concepts.keys())
     
     candidat_change_count = {}

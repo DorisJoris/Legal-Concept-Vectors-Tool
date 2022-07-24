@@ -800,7 +800,7 @@ def _get_sentence_paragraph_specific_ref_list(text, paragraph_property_list):
             sentence_paragraph_specific_ref_list.append(individual_ref_dict)
             search_text = search_text[new_start:]
     
-        elif len(external_refs_present) != 0:
+        else:
             ref_replacement = individual_ref_dict['ref_string'].replace(',','@@')
             search_text_external = search_text_external.replace(individual_ref_dict['ref_string'], ref_replacement)
             search_text_external = search_text_external.replace(', i lov','@@ i lov')

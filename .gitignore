@@ -154,3 +154,7 @@ databases/test_database.p
 test_scripts/test.py
 test_scripts/bert_test.py
 stopord.txt
+databases/bert_database.p
+test_scripts/debugging_task.py
+saved tests/bert_gold_std_df.p
+doc_import_problems_log.txt

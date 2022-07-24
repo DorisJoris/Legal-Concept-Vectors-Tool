@@ -22,8 +22,8 @@ from visualization_data import get_input_visual_dfs
 
 #%% Open pickled input visual_dfs
     
-with open("databases/test_database.p", "rb") as pickle_file:
-    test_database = pickle.load(pickle_file)      
+with open("databases/bert_database.p", "rb") as pickle_file:
+    bert_database = pickle.load(pickle_file)      
 
 #%% plotly
 external_stylesheets = [dbc.themes.MINTY]
@@ -150,7 +150,7 @@ app.layout = dbc.Container([
 )
 def update_userdata(n_clicks, value):
     if n_clicks > 0:
-        return get_input_visual_dfs(value, test_database)
+        return get_input_visual_dfs(value, bert_database)
 
 @app.callback(
     Output('text_selector', 'options'),
